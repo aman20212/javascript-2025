@@ -1,0 +1,243 @@
+<h1>Symbol type</h1>
+<p>
+  By specification, only two primitive types may serve as object property
+  keys:<br />
+  <b>string type,</b><br />
+  <b>or symbol type.</b><br />
+  Otherwise, if one uses another type, such as number, it’s autoconverted to
+  string.<br />
+  So that obj[1] is the same as obj["1"], and obj[true] is the same as
+  obj["true"].
+</p>
+
+<h2>Symbols</h2>
+A “symbol” represents a unique identifier.<br />
+A value of this type can be created using Symbol():<br />
+<b>let id = Symbol();</b><br />
+Upon creation, we can give symbols a description (also called a symbol name),
+mostly useful for debugging purposes:<br />
+<b
+  >// id is a symbol with the description "id"<br />
+  let id = Symbol("id");</b
+>
+
+<p>
+  Symbols are guaranteed to be unique. Even if we create many symbols with
+  exactly the same description, they are different values.<br />
+  The description is just a label that doesn’t affect anything. For instance,
+  here are two symbols with the same description – they are not equal:
+</p>
+<strong>
+  let id1 = Symbol("id"); <br />let id2 = Symbol("id");<br />
+  alert(id1 == id2); // false
+</strong>
+<br />
+<hr />
+<em
+  >So, to summarize, a symbol is a “primitive unique value” with an optional
+  description. Let’s see where we can use them.</em
+>
+<p style="color: red">
+  <b>Symbols don’t auto-convert to a string</b><br />
+  Most values in JavaScript support implicit conversion to a string.<br />
+  For instance, we can alert almost any value, and it will work. Symbols are
+  special. They don’t auto-convert. <br />For instance, this alert will show an
+  error:<br />
+  let id = Symbol("id");<br />
+  alert(id); // TypeError: Cannot convert a Symbol value to a string<br />
+  That’s a “language guard” against messing up, because strings and symbols are
+  fundamentally different and should not accidentally convert one into
+  another.<br />
+  If we really want to show a symbol, we need to explicitly call .toString() on
+  it, like here:<br />
+  let id = Symbol("id"); <br />alert(id.toString()); // Symbol(id), now it
+  works<br />
+  Or get symbol.description property to show the description only: let id =
+  Symbol("id");<br />
+  alert(id.description); // id
+</p>
+<br />
+
+<h2>Hidden” properties</h2>
+<p>
+  <em
+    >Symbols allow us to create “hidden” properties of an object, that no other
+    part of code can accidentally access or overwrite.</em
+  ><br />
+  For instance, if we’re working with user objects, that belong to a third-party
+  code. We’d like to add identifiers to them.<br />
+  Let’s use a symbol key for it:
+</p>
+<pre>
+    <code>
+        let user = { // belongs to another code
+            name: "John"
+          };
+          
+          let id = Symbol("id");
+          
+          user[id] = 1;
+          
+          alert( user[id] ); // we can access the data using the symbol as the key
+    </code>
+</pre>
+<p>
+  What’s the benefit of using Symbol("id") over a string "id"?<br />
+
+  As user objects belong to another codebase, it’s unsafe to add fields to them,
+  since we might affect pre-defined behavior in that other codebase.
+  <br />However, symbols cannot be accessed accidentally. The third-party code
+  won’t be aware of newly defined symbols, so it’s safe to add symbols to the
+  user objects.<br />
+  Also, imagine that another script wants to have its own identifier inside
+  user, for its own purposes.<br />
+
+  Then that script can create its own Symbol("id"), like this:
+</p>
+<pre>
+    <code>
+        let id = Symbol("id");
+        user[id] = "Their id value";
+    </code>
+</pre>
+<p>
+  There will be no conflict between our and their identifiers, because
+  symbols<br />
+  are always different, even if they have the same name. …But if we used a<br />
+  string "id" instead of a symbol for the same purpose, then there would be a
+  conflict:
+</p>
+<pre>
+    <code>
+        let user = { name: "John" };
+
+        // Our script uses "id" property
+        user.id = "Our id value";
+
+        // ...Another script also wants "id" for its purposes...
+
+        user.id = "Their id value"
+        // Boom! overwritten by another script!
+    </code>
+</pre>
+
+<h2>Symbols in an object literal</h2>
+<p>
+  If we want to use a symbol in an object literal {...}, we need square brackets
+  around it.<br />
+
+  Like this:
+  <pre>
+    <code>
+        let id = Symbol("id");
+
+        let user = {
+        name: "John",
+        [id]: 123 // not "id": 123
+        };
+    </code>
+  </pre>
+  That’s because we need the value from the variable id as the key, not the string “id”.
+</p>
+
+<h2>Symbols are skipped by for…in</h2>
+<p>Symbolic properties do not participate in for..in loop.<br>
+
+    For instance:</p>
+    <pre>
+        <code>
+            let id = Symbol("id");
+            let user = {
+            name: "John",
+            age: 30,
+            [id]: 123
+            };
+
+            for (let key in user) alert(key); // name, age (no symbols)
+
+            // the direct access by the symbol works
+            alert( "Direct: " + user[id] ); // Direct: 123
+        </code>
+    </pre>
+
+    <p><b>Object.keys(user)</b> also ignores them. <br>That’s a part of the general “hiding symbolic properties” principle. If another script or a library loops over our object, it won’t unexpectedly access a symbolic property.<br>
+
+        In contrast, <b>Object.assign</b> copies both string and symbol properties:</p>
+
+        <pre>
+            <code>
+                let id = Symbol("id");
+                let user = {
+                [id]: 123
+                };
+
+                let clone = Object.assign({}, user);
+
+                alert( clone[id] ); // 123
+            </code>
+        </pre>
+
+<h2>Global symbols</h2>
+<p>As we’ve seen, usually all symbols are different, even if they have the same name. But sometimes we want same-named symbols to be same entities.<br> For instance, different parts of our application want to access symbol "id" meaning exactly the same property.<br>
+
+    To achieve that, there exists a global symbol registry.<br> We can create symbols in it and access them later, and it guarantees that repeated accesses by the same name return exactly the same symbol.<br>
+    
+    In order to read (create if absent) a symbol from the registry, use <strong>Symbol.for(key)</strong>.<br>
+    
+    That call checks the global registry, and if there’s a symbol described as key, then returns it, otherwise creates a new symbol <b>Symbol(key)</b> and stores it in the registry by the given key.
+    
+    For instance:</p>
+<pre>
+    <code>
+        // read from the global registry
+        let id = Symbol.for("id"); // if the symbol did not exist, it is created
+
+        // read it again (maybe from another part of the code)
+        let idAgain = Symbol.for("id");
+
+        // the same symbol
+        alert( id === idAgain ); // true
+    </code>
+</pre>
+<em>Symbols inside the registry are called global symbols. If we want an application-wide symbol, accessible everywhere in the code – that’s what they are for.</em>
+
+<h2 style="color: blue;">Symbol.keyFor</h2>
+<p>We have seen that for global symbols, <b>Symbol.for(key)</b> returns a symbol by name.<br> To do the opposite – return a name by global symbol – we can use: <b>Symbol.keyFor(sym):</b></p>
+<pre>
+    <code>
+        // get symbol by name
+        let sym = Symbol.for("name");
+        let sym2 = Symbol.for("id");
+
+        // get name by symbol
+        alert( Symbol.keyFor(sym) ); // name
+        alert( Symbol.keyFor(sym2) ); // id
+    </code>
+</pre>
+<p>The Symbol.keyFor internally uses the global symbol registry to look up the key for the symbol. <br>So it doesn’t work for non-global symbols. <br>If the symbol is not global, it won’t be able to find it and returns undefined.<br>
+
+    That said, all symbols have the <b>description</b> property.</p>
+<pre>
+    <code>
+        let globalSymbol = Symbol.for("name");
+        let localSymbol = Symbol("name");
+
+        alert( Symbol.keyFor(globalSymbol) ); // name, global symbol
+        alert( Symbol.keyFor(localSymbol) ); // undefined, not global
+
+        alert( localSymbol.description ); // name
+    </code>
+</pre>
+
+<h2>System symbols</h2>
+<p>There exist many “system” symbols that JavaScript uses internally, and we can use them to fine-tune various aspects of our objects.<br>
+
+    They are listed in the specification in the Well-known symbols table:<br><br>
+    
+    <strong>
+    Symbol.hasInstance<br>
+    Symbol.isConcatSpreadable<br>
+    Symbol.iterator<br>
+    Symbol.toPrimitive<br>
+    …and so on.<br><br></strong>
+    For instance, Symbol.toPrimitive allows us to describe object to primitive conversion. We’ll see its use very soon.</p>
