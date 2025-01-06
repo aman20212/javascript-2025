@@ -1,0 +1,172 @@
+<h1>Object to primitive conversion</h1>
+<h2>Conversion rules</h2>
+<p>
+  There’s no conversion to boolean. All objects are true in a boolean context,
+  as simple as that. <br />There exist only numeric and string conversions.
+</p>
+<p>
+  The numeric conversion happens when we subtract objects or apply mathematical
+  functions. <br />For instance, Date objects (to be covered in the chapter Date
+  and time) can be subtracted, and the result of date1 - date2 is the time
+  difference between two dates.
+</p>
+<p>
+  As for the string conversion – it usually happens when we output an object
+  with alert(obj) and in similar contexts.
+</p>
+
+<h2>Hints</h2>
+<p>
+  There are three variants of type conversion, that happen in various
+  situations. They’re called <b>“hints”</b>, as described in the specification:
+</p>
+
+<div style="color: red">
+  <h3>"string"</h3>
+  <p>
+    For an object-to-string conversion, when we’re doing an operation on an
+    object that expects a string, like <b>alert:</b>
+  </p>
+  <pre>
+    <code>
+        // output
+        alert(obj);
+
+        // using object as a property key
+        anotherObj[obj] = 123;
+    </code>
+</pre>
+</div>
+<hr />
+<div style="color: blue">
+  <h3>"number"</h3>
+  For an object-to-number conversion, like when we’re doing maths:
+  <pre>
+        <code>
+            // explicit conversion
+            let num = Number(obj);
+
+            // maths (except binary plus)
+            let n = +obj; // unary plus
+            let delta = date1 - date2;
+
+            // less/greater comparison
+            let greater = user1 > user2;
+        </code>
+    </pre>
+  Most built-in mathematical functions also include such conversion.
+</div>
+<hr />
+<div style="color: brown">
+  <h3>"default"</h3>
+  <p>
+    Occurs in rare cases when the operator is “not sure” what type to expect.<br />
+
+    For instance, binary plus + can work both with strings (concatenates them)
+    and numbers (adds them). So if a binary plus gets an object as an argument,
+    it uses the "default" hint to convert it.<br />
+
+    Also, if an object is compared using == with a string, number or a symbol,
+    it’s also unclear which conversion should be done, so the "default" hint is
+    used.
+  </p>
+  <pre>
+    <code>
+        // binary plus uses the "default" hint
+        let total = obj1 + obj2;
+
+        // obj == number uses the "default" hint
+        if (user == 1) { ... };
+    </code>
+  </pre>
+  <p>
+    All built-in objects except for one case (Date object, we’ll learn it later)
+    implement "default" conversion the same way as "number". <br />And we
+    probably should do the same. Still, it’s important to know about all 3 hints
+  </p>
+  <p>
+    <b
+      >To do the conversion, JavaScript tries to find and call three object
+      methods:</b
+    >
+    <br />
+    1. Call <b>obj[Symbol.toPrimitive]</b>(hint) – the method with the symbolic
+    key <b>Symbol.toPrimitive</b> (system symbol), if such method exists,<br />
+    2. Otherwise if hint is "string" try calling
+    <b>obj.toString() or obj.valueOf()</b>, whatever exists.<br />
+    3. Otherwise if hint is "number" or "default" try calling
+    <b>obj.valueOf() or obj.toString()</b>, whatever exists.
+  </p>
+</div>
+<hr>
+<div style="color: rebeccapurple">
+  <h2>Symbol.toPrimitive</h2>
+  <p>
+    Let’s start from the first method. <br />There’s a built-in symbol named
+    Symbol.toPrimitive that should be used to name the conversion method, like
+    this:
+    <pre>
+        <code>
+            obj[Symbol.toPrimitive] = function(hint) {
+                // here goes the code to convert this object to a primitive
+                // it must return a primitive value
+                // hint = one of "string", "number", "default"
+              };
+        </code>
+    </pre>
+    <p>If the method <b>Symbol.toPrimitive</b> exists, it’s used for all hints, and no more methods are needed.
+    </p><br>
+    For instance, here <b>user</b> object implements it:<br>
+    <pre>
+        <code>
+            let user = {
+                name: "John",
+                money: 1000,
+              
+                [Symbol.toPrimitive](hint) {
+                  alert(`hint: ${hint}`);
+                  return hint == "string" ? `{name: "${this.name}"}` : this.money;
+                }
+              };
+              
+              // conversions demo:
+              alert(user); // hint: string -> {name: "John"}
+              alert(+user); // hint: number -> 1000
+              alert(user + 500); // hint: default -> 1500
+        </code>
+    </pre>
+    As we can see from the code, <b>user</b> becomes a self-descriptive string or a money amount, depending on the conversion. The single method <b>user[Symbol.toPrimitive] </b>handles all conversion cases
+  </p>
+</div>
+<hr>
+
+<div style="color: blueviolet;">
+    <h2>toString/valueOf</h2>
+    <p>If there’s no <b>Symbol.toPrimitive</b> then JavaScript tries to find methods <b>toString</b> and <b>valueOf</b>:<br>
+        For the <b>"string"</b> hint: call <b>toString</b> method, and if it doesn’t exist or if it returns an object instead of a primitive value, then call <b>valueOf</b> (so toString has the priority for string conversions).<br>
+        For other hints: call <b>valueOf</b>, and if it doesn’t exist or if it returns an object instead of a primitive value, then call <b>toString</b> (so valueOf has the priority for maths).</p>
+        <p>These methods must return a primitive value. If toString or valueOf returns an object, then it’s ignored (same as if there were no method).<br>
+
+            By default, a plain object has following toString and valueOf methods:<br>
+            
+            The <b>toString</b> method returns a string <b>"[object Object]"</b>.
+            The <b>valueOf</b> method returns the <b>object</b> itself.
+            Here’s the demo:</p>
+            <pre>
+                <code>
+                    let user = {name: "John"};
+
+                    alert(user); // [object Object]
+                    alert(user.valueOf() === user); // true
+                </code>
+            </pre>
+</div>
+<hr>
+<div>
+    <h2>A conversion can return any primitive type</h2>
+    <p>The important thing to know about all primitive-conversion methods is that they do not necessarily return the “hinted” primitive.
+        <br>
+        There is no control whether <b>toString</b> returns exactly a string, or whether <b>Symbol.toPrimitive</b> method returns a number for the hint "number".
+        <br>
+        The only mandatory thing: these methods must return a primitive, not an object.</p>
+</div>
