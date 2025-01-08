@@ -1,0 +1,302 @@
+<div>
+  <h2>Special characters</h2>
+  <p>
+    It is still possible to create multiline strings with single and double
+    quotes by using a so-called <b>“newline character”</b>, written as
+    <b>\n</b>, which denotes a line break:
+  </p>
+  <pre>
+    <code>
+        let guestList = "Guests:\n * John\n * Pete\n * Mary";
+
+        alert(guestList); // a multiline list of guests, same as above
+
+        Guests:
+        * John
+        * Pete
+        * Mary
+    </code>
+  </pre>
+  <p>
+    As a simpler example, these two lines are equal, just written differently:
+  </p>
+  <pre>
+    <code>
+        let str1 = "Hello\nWorld"; // two lines using a "newline symbol"
+
+        // two lines using a normal newline and backticks
+        let str2 = `Hello
+        World`;
+
+        alert(str1 == str2); // true
+    </code>
+  </pre>
+  <pre>
+    <code>
+        <b>Character</b>	    <b>Description</b>
+        \n	            New line
+        \r	            In Windows text files a combination of two characters \r\n represents a new break, while on non-Windows OS it’s just \n. That’s for historical reasons, most Windows software also understands \n.
+        \', \", \`	    Quotes
+        \\	            Backslash
+        \t	            Tab
+        \b, \f, \v	    Backspace, Form Feed, Vertical Tab – mentioned for completeness, coming from old times, not used nowadays (you can forget them right now).
+    </code>
+  </pre>
+  <p>
+    As you can see, all special characters start with a backslash character
+    <b>\</b>. It is also called an <b>“escape character”</b>.
+  </p>
+  <pre>
+    <code>
+        alert( `The backslash: \\` ); // The backslash: \
+        alert( 'I\'m the Walrus!' ); // I'm the Walrus!
+        alert( "I'm the Walrus!" ); // I'm the Walrus!
+    </code>
+  </pre>
+</div>
+<hr />
+<div>
+  <h2>String length</h2>
+  <p>The length property has the string length:</p>
+  <br />
+  <pre>
+        <code>
+            alert( `My\n`.length ); // 3
+        </code>
+    </pre>
+  Note that \n is a single “special” character, so the length is indeed 3.
+</div>
+<hr />
+<div>
+  <h2>Accessing characters</h2>
+  <p>
+    To get a character at position pos, use square brackets <b>[pos]</b> or call
+    the method <b>str.at(pos)</b>. The first character starts from the zero
+    position:
+  </p>
+  <pre>
+    <code>
+        let str = `Hello`;
+
+        // the first character
+        alert( str[0] ); // H
+        alert( str.at(0) ); // H
+
+        // the last character
+        alert( str[str.length - 1] ); // o
+        alert( str.at(-1) );
+    </code>
+  </pre>
+  <p>
+    As you can see, the .at(pos) method has a benefit of allowing negative
+    position. If pos is negative, then it’s counted from the end of the
+    string.<br />
+
+    So .at(-1) means the last character, and .at(-2) is the one before it,
+    etc.<br />
+
+    The square brackets always return undefined for negative indexes, for
+    instance:
+  </p>
+  <pre>
+        <code>
+            let str = `Hello`;
+
+            alert( str[-2] ); // undefined
+            alert( str.at(-2) ); // l
+        </code>
+    </pre>
+  <p>We can also iterate over characters using <b>for..of</b>:</p>
+  <pre>
+    <code>
+        for (let char of "Hello") {
+            alert(char); // H,e,l,l,o (char becomes "H", then "e", then "l" etc)
+        }
+    </code>
+  </pre>
+</div>
+<hr />
+<div>
+  <h2>Strings are immutable</h2>
+  <p>
+    Strings can’t be changed in JavaScript. It is impossible to change a
+    character.<br />
+
+    Let’s try it to show that it doesn’t work:
+    <pre>
+        <code>
+            let str = 'Hi';
+
+            str[0] = 'h'; // error
+            alert( str[0] ); // doesn't work
+        </code>
+    </pre>
+    <p>The usual workaround is to create a whole new string and assign it to str instead of the old one.</p>
+    <pre>
+        <code>
+            let str = 'Hi';
+
+            str = 'h' + str[1]; // replace the string
+
+            alert( str ); // hi
+        </code>
+    </pre>
+  </p>
+</div>
+<hr>
+<div>
+    <h2>Searching for a substring</h2>
+    <p>There are multiple ways to look for a substring within a string.</p>
+    <strong>
+        str.indexOf
+    </strong>
+    <p>The first method is <b>str.indexOf(substr, pos)</b>.<br>
+
+        It looks for the substr in str, starting from the given position pos, and returns the position where the match was found or -1 if nothing can be found.<br>
+        
+        For instance:<br></p>
+        <pre>
+            <code>
+                let str = 'Widget with id';
+
+                alert( str.indexOf('Widget') ); // 0, because 'Widget' is found at the beginning
+                alert( str.indexOf('widget') ); // -1, not found, the search is case-sensitive
+
+                alert( str.indexOf("id") ); // 1, "id" is found at the position 1 (..idget with id)
+            </code>
+        </pre>
+        <p>The optional second parameter allows us to start searching from a given position.<br>
+
+            For instance, the first occurrence of "id" is at position 1. To look for the next occurrence, let’s start the search from position 2:</p>
+            <pre>
+                <code>
+                    let str = 'Widget with id';
+
+                    alert( str.indexOf('id', 2) ) // 12
+                </code>
+            </pre>
+            <pre>
+                <code>
+                    <b>str.lastIndexOf(substr, position)</b><br>
+                    There is also a similar method str.lastIndexOf(substr, position) that searches from the end of a string to its beginning.
+
+                    It would list the occurrences in the reverse order.
+                </code>
+            </pre>
+            <pre>
+                <code>
+                    There is a slight inconvenience with <b>indexOf</b> in the if test. We can’t put it in the if like this:
+
+                    let str = "Widget with id";
+
+                    if (str.indexOf("Widget")) {
+                        alert("We found it"); // doesn't work!
+                    }
+                    The alert in the example above doesn’t show because <b>str.indexOf("Widget") returns 0</b> (meaning that it found the match at the starting position). Right, but if considers 0 to be false.<br>
+                    So, we should actually check for -1, like this:
+
+                        let str = "Widget with id";
+
+                        if (str.indexOf("Widget") != -1) {
+                            alert("We found it"); // works now!
+                        }
+                </code>
+            </pre>
+</div>
+<hr>
+<div>
+    <h2>includes, startsWith, endsWith</h2>
+    <p>The more modern method <b>str.includes(substr, pos)</b> returns <b>true/false</b> depending on whether str contains substr within.
+
+        It’s the right choice if we need to test for the match, but don’t need its position:</p>
+    <pre>
+        <code>
+            alert( "Widget with id".includes("Widget") ); // true
+
+            alert( "Hello".includes("Bye") ); // false
+        </code>
+    </pre>
+    <p>The optional second argument of <b>str.includes</b> is the position to start searching from:</p><br>
+    alert( "Widget".includes("id") ); // true<br>
+    alert( "Widget".includes("id", 3) ); // false, from position 3 there is no "id"
+    <br>
+    <p>The methods <b>str.startsWith</b> and <b>str.endsWith</b> do exactly what they say:</p>
+    <pre>
+        <code>
+            alert( "Widget".startsWith("Wid") ); // true, "Widget" starts with "Wid"
+            alert( "Widget".endsWith("get") ); // true, "Widget" ends with "get"
+        </code>
+    </pre>
+</div>
+<hr>
+<div style="color: red;">
+    <h2>Getting a substring</h2>
+    <p>There are 3 methods in JavaScript to get a substring: <b>substring, substr and slice.</b></p>
+    <strong>str.slice(start [, end])</strong>
+    <p>Returns the part of the string from <b>start</b> to (but not including) <b>end.</b></p><br>
+    For instance:
+    <pre>
+        <code>
+            let str = "stringify";
+            alert( str.slice(0, 5) ); // 'strin', the substring from 0 to 5 (not including 5)
+            alert( str.slice(0, 1) ); // 's', from 0 to 1, but not including 1, so only character at 0
+        </code>
+    </pre>
+    If there is no <b>second</b> argument, then slice goes till the end of the string:
+    <pre>
+        <code>
+            let str = "stringify";
+            alert( str.slice(2) ); // 'ringify', from the 2nd position till the end
+        </code>
+    </pre>
+    <p>Negative values for <b>start/end</b> are also possible. They mean the position is counted from the string end:</p>
+    <pre>
+        <code>
+            let str = "stringify";
+
+            // start at the 4th position from the right, end at the 1st from the right
+            alert( str.slice(-4, -1) ); // 'gif'
+        </code>
+    </pre>
+</div>
+<hr>
+<div style="color: blue;">
+    <h2>str.substring(start [, end])</h2>
+    <p>Returns the part of the string between <b>start and end</b> (not including end).<br>
+
+        This is almost the same as <b>slice</b>, but it allows <b>start</b> to be greater than <b>end</b> (in this case it simply swaps start and end values).</p>
+    <pre>
+        <code>
+            let str = "stringify";
+
+            // these are same for substring
+            alert( str.substring(2, 6) ); // "ring"
+            alert( str.substring(6, 2) ); // "ring"
+
+            // ...but not for slice:
+            alert( str.slice(2, 6) ); // "ring" (the same)
+            alert( str.slice(6, 2) ); // "" (an empty string)
+        </code>
+    </pre>
+    <p>Negative arguments are (unlike slice) not supported, they are treated as 0.</p>
+</div>
+<hr>
+<div>
+    <h2>str.substr(start [, length])</h2>
+    <p>Returns the part of the string from start, with the given length.<br>
+
+        In contrast with the previous methods, this one allows us to specify the <b>length</b> instead of the ending position:</p>
+    <pre>
+        <code>
+            let str = "stringify";
+            alert( str.substr(2, 4) ); // 'ring', from the 2nd position get 4 characters
+        </code>
+    </pre>
+    <p>The first argument may be negative, to count from the end:</p>
+    <pre>
+        <code>
+            let str = "stringify";
+            alert( str.substr(-4, 2) ); // 'gi', from the 4th position get 2 characters
+        </code>
+    </pre>
+</div>

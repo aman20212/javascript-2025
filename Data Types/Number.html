@@ -1,0 +1,127 @@
+<div>
+  <h1>Rounding</h1>
+  <p>
+    One of the most used operations when working with numbers is rounding.<br />
+    There are several built-in functions for rounding:<br />
+    <b>Math.floor</b><br />
+    Rounds down: 3.1 becomes 3, and -1.1 becomes -2.<br />
+    <b>Math.ceil</b><br />
+    Rounds up: 3.1 becomes 4, and -1.1 becomes -1.<br />
+    <b>Math.round</b><br />
+    Rounds to the nearest integer: 3.1 becomes 3, 3.6 becomes 4. <br />In the
+    middle cases 3.5 rounds up to 4, and -3.5 rounds up to -3.<br />
+    <b>Math.trunc</b><br />
+    (not supported by Internet Explorer) Removes anything after the decimal
+    point without rounding: 3.1 becomes 3, -1.1 becomes -1.
+  </p>
+  <br />
+  <hr>
+  <h2>alert( 0.1 + 0.2 == 0.3 ); // false</h2>
+  <p>
+    That’s right, if we check whether the sum of 0.1 and 0.2 is 0.3, we get
+    false.<br />
+
+    Strange! What is it then if not 0.3?
+    <h3>alert( 0.1 + 0.2 ); // 0.30000000000000004</h3>
+  </p>
+  <p>Can we work around the problem? Sure, the most reliable method is to round the result with the help of a method <b>toFixed(n)</b>:</p>
+  <pre>
+    <code>
+        let sum = 0.1 + 0.2;
+        alert( sum.toFixed(2) ); // "0.30"
+    </code>
+  </pre>
+  <p>
+    Please note that <b>toFixed</b> always returns a string. It ensures that it has 2 digits after the decimal point.
+  </p>
+</div>
+<hr>
+<div>
+    <h2>Tests: isFinite and isNaN</h2>
+    <p>
+        Remember these two special numeric values?<br>
+
+<b>Infinity (and -Infinity)</b> is a special numeric value that is greater (less) than anything.<br>
+<b>NaN</b> represents an error.<br>
+They belong to the type number, but are not “normal” numbers, so there are special functions to check for them:<br>
+
+<b>isNaN(value)</b> converts its argument to a number and then tests it for being NaN:
+    </p>
+
+    <pre>
+        <code>
+            alert( isNaN(NaN) ); // true
+            alert( isNaN("str") ); // true
+        </code>
+    </pre>
+    <p>But do we need this function? Can’t we just use the comparison <b>=== NaN?</b> Unfortunately not. <br>The value <b>NaN</b> is unique in that it does not equal anything, including itself:</p>
+    <pre>
+        <code>
+            alert( NaN === NaN ); // false
+        </code>
+    </pre>
+    <p><b>isFinite(value)</b> converts its argument to a number and returns true if it’s a <b>regular number, not NaN/Infinity/-Infinity:</b></p>
+    <pre>
+        <code>
+            alert( isFinite("15") ); // true
+            alert( isFinite("str") ); // false, because a special value: NaN
+            alert( isFinite(Infinity) ); // false, because a special value: Infinity
+        </code>
+    </pre>
+    <p>Sometimes <b>isFinite</b> is used to validate whether a string value is a regular number:</p>
+    <pre>
+        <code>
+            let num = +prompt("Enter a number", '');
+
+            // will be true unless you enter Infinity, -Infinity or not a number
+            alert( isFinite(num) );
+        </code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>parseInt and parseFloat</h2>
+    <p>Numeric conversion using a plus + or Number() is strict. If a value is not exactly a number, it fails:</p><br>
+    <pre>
+        <code>
+            alert( +"100px" ); // NaN
+        </code>
+    </pre>
+    The function <b>parseInt</b> returns an integer, whilst <b>parseFloat</b> will return a floating-point number:
+    <pre>
+        <code>
+            alert( parseInt('100px') ); // 100
+            alert( parseFloat('12.5em') ); // 12.5
+
+            alert( parseInt('12.3') ); // 12, only the integer part is returned
+            alert( parseFloat('12.3.4') ); // 12.3, the second point stops the reading
+        </code>
+    </pre>
+    <p>There are situations when <b>parseInt/parseFloat</b> will return <b>NaN</b>. It happens when no digits could be read:</p>
+    <pre>
+        <code>
+            alert( parseInt('a123') ); // NaN, the first symbol stops the process
+        </code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>Other math functions</h2>
+    <p>JavaScript has a built-in Math object which contains a small library of mathematical functions and constants.</p><br>
+    <p>A few examples:</p><br>
+    <strong>Math.random()</strong>
+    <p>Returns a random number from 0 to 1 (not including 1).</p>
+</div>
+<hr>
+<div style="color: red;">
+    <p>
+        Comparison with <b>Object.is</b><br>
+There is a special built-in method Object.is that compares values like ===, but is more reliable for two edge cases:<br>
+
+It works with <b>NaN: Object.is(NaN, NaN) === true</b>, that’s a good thing.<br>
+Values <b>0 and -0 are different: Object.is(0, -0) === false</b>, technically that’s correct because internally the number has a sign bit that may be different even if all other bits are zeroes.<br>
+<b>In all other cases, Object.is(a, b) is the same as a === b.</b>
+
+We mention <b>Object.is</b> here, because it’s often used in JavaScript specification. When an internal algorithm needs to compare two values for being exactly the same, it uses Object.is (internally called SameValue).
+    </p>
+</div>
