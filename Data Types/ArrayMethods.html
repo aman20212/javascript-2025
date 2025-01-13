@@ -1,0 +1,415 @@
+<div>
+  <h1>Array Methods</h1>
+  <h2>Add/remove items</h2>
+  <p>
+    arr.push(...items) – adds items to the end,<br />
+    arr.pop() – extracts an item from the end,<br />
+    arr.shift() – extracts an item from the beginning,<br />
+    arr.unshift(...items) – adds items to the beginning.<br />
+  </p>
+  <br />
+  <h2>splice</h2>
+  <p>
+    How to delete an element from the array?<br />
+
+    The arrays are objects, so we can try to use delete:
+  </p>
+  <pre>
+        <code>
+            let arr = ["I", "go", "home"];
+
+            delete arr[1]; // remove "go"
+
+            alert( arr[1] ); // undefined
+
+            // now arr = ["I",  , "home"];
+            alert( arr.length ); // 3
+        </code>
+    </pre>
+  <p>
+    The element was removed, but the array still has 3 elements, we can see that
+    <b>arr.length == 3</b>.
+  </p>
+  <p>
+    The <b style="color: red">arr.splice</b> method is a Swiss army knife for
+    arrays. It can do everything: insert, remove and replace elements.<br> The
+    syntax is:
+    <pre>
+        <code>
+            arr.splice(start[, deleteCount, elem1, ..., elemN])
+        </code>
+    </pre>
+  </p>
+  <p>It modifies arr starting from the index <b>start:</b> removes <b>deleteCount</b> elements and then inserts <b>elem1, ..., elemN</b> at their place. Returns the array of removed elements.
+    <br>
+    This method is easy to grasp by examples.
+    <br>
+    Let’s start with the deletion:</p>
+    <pre>
+        <code>
+            let arr = ["I", "study", "JavaScript"];
+
+            arr.splice(1, 1); // from index 1 remove 1 element
+
+            alert( arr ); // ["I", "JavaScript"]
+        </code>
+    </pre>
+    <pre>
+        <code>
+            let arr = ["I", "study", "JavaScript", "right", "now"];
+
+            // remove 3 first elements and replace them with another
+            arr.splice(0, 3, "Let's", "dance");
+
+            alert( arr ) // now ["Let's", "dance", "right", "now"]
+        </code>
+    </pre>
+    <pre>
+        <code>
+            let arr = ["I", "study", "JavaScript", "right", "now"];
+
+            // remove 2 first elements
+            let removed = arr.splice(0, 2);
+
+            alert( removed ); // "I", "study" <-- array of removed elements
+        </code>
+    </pre>
+    <p>The <b>splice</b> method is also able to <b>insert the elements without any removals</b>. For that, we need to set <b>deleteCount to 0:</b></p>
+    <pre>
+        <code>
+            let arr = ["I", "study", "JavaScript"];
+
+            // from index 2
+            // delete 0
+            // then insert "complex" and "language"
+            arr.splice(2, 0, "complex", "language");
+
+            alert( arr ); // "I", "study", "complex", "language", "JavaScript"
+        </code>
+    </pre>
+    <b>-------------------------------------------------------</b>
+    <pre>
+        <code>
+            <b>Negative indexes allowed</b>
+            <p>Here and in other array methods, negative indexes are allowed. They specify the position from the end of the array, like here:</p>
+            <code>
+                let arr = [1, 2, 5];
+
+                // from index -1 (one step from the end)
+                // delete 0 elements,
+                // then insert 3 and 4
+                arr.splice(-1, 0, 3, 4);
+
+                alert( arr ); // 1,2,3,4,5
+            </code>
+        </code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>slice</h2>
+    <p>The method <b>arr.slice</b> is much simpler than the similar-looking <b>arr.splice</b>.<br>
+
+        The syntax is:</p>
+    <pre>
+        <code>
+            arr.slice([start], [end])
+        </code>
+    </pre>
+    <p>It returns a new array copying to it all items from index start to end (not including end).<br> Both start and end can be negative, in that case position from array end is assumed.<br>
+
+        It’s similar to a string method str.slice, but instead of substrings, it makes subarrays.</p>
+        <pre>
+            <code>
+                let arr = ["t", "e", "s", "t"];
+
+                alert( arr.slice(1, 3) ); // e,s (copy from 1 to 3)
+
+                alert( arr.slice(-2) ); // s,t (copy from -2 till the end)
+            </code>
+        </pre>
+        <p>We can also call it without arguments: <b>arr.slice() creates a copy of arr</b>. That’s often used to obtain a copy for further transformations that should not affect the original array.</p>
+</div>
+<hr>
+<div>
+    <h2>concat</h2>
+    <p>The method <b>arr.concat</b> creates a new array that includes values from other arrays and additional items.<br>
+
+        The syntax is:</p>
+    <pre>
+        <code>arr.concat(arg1, arg2...)</code>
+    </pre>
+    <p>It accepts any number of arguments – either arrays or values.
+        <br>
+        The result is a new array containing items from arr, then arg1, arg2 etc.
+        <br>
+        If an argument argN is an array, then all its elements are copied. Otherwise, the argument itself is copied.</p>
+    <pre>
+        <code>
+            let arr = [1, 2];
+
+            // create an array from: arr and [3,4]
+            alert( arr.concat([3, 4]) ); // 1,2,3,4
+
+            // create an array from: arr and [3,4] and [5,6]
+            alert( arr.concat([3, 4], [5, 6]) ); // 1,2,3,4,5,6
+
+            // create an array from: arr and [3,4], then add values 5 and 6
+            alert( arr.concat([3, 4], 5, 6) ); // 1,2,3,4,5,6
+        </code>
+    </pre>
+    <hr>
+    <pre>
+        <code>
+            let arr = [1, 2];
+
+            let arrayLike = {
+            0: "something",
+            length: 1
+            };
+
+            alert( arr.concat(arrayLike) ); // 1,2,[object Object]
+        </code>
+    </pre>
+    <p>…But if an array-like object has a special <b>Symbol.isConcatSpreadable</b> property, then it’s treated as an array by <b>concat:</b> its elements are added instead:</p>
+    <pre>
+        let arr = [1, 2];
+
+        let arrayLike = {
+        0: "something",
+        1: "else",
+        [Symbol.isConcatSpreadable]: true,
+        length: 2
+        };
+
+        alert( arr.concat(arrayLike) ); // 1,2,something,else
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>Iterate: forEach</h2>
+    <p>The <b>arr.forEach</b> method allows to run a function for every element of the array.</p>
+    <pre>
+        <code>
+            arr.forEach(function(item, index, array) {
+                // ... do something with an item
+            });
+
+            // for each element call alert
+            ["Bilbo", "Gandalf", "Nazgul"].forEach(alert);
+
+            ["Bilbo", "Gandalf", "Nazgul"].forEach((item, index, array) => {
+                alert(`${item} is at index ${index} in ${array}`);
+            });
+        </code>
+    </pre>
+</div>
+<hr>
+
+<div>
+    <h2>Searching in array</h2>
+    <h3>indexOf/lastIndexOf and includes</h3>
+    <p>
+        The methods <b>arr.indexOf</b> and <b>arr.includes</b> have the similar syntax and do essentially the same as their string counterparts, but operate on items instead of characters:<br>
+
+<b>arr.indexOf(item, from)</b> – looks for item starting from index from, and returns the index where it was found, otherwise -1.<br>
+<b>arr.includes(item, from)</b> – looks for item starting from index from, returns true if found.<br>
+Usually, these methods are used with only one argument: the item to search. By default, the search is from the beginning.
+    </p>
+    <pre>
+        <code>
+            let arr = [1, 0, false];
+
+            alert( arr.indexOf(0) ); // 1
+            alert( arr.indexOf(false) ); // 2
+            alert( arr.indexOf(null) ); // -1
+
+            alert( arr.includes(1) ); // true
+        </code>
+    </pre>
+    <b style="color: red;">Please note that indexOf uses the strict equality === for comparison. So, if we look for false, it finds exactly false and not the zero.</b>
+    <pre>
+        <code>
+            <b>The includes method handles NaN correctly</b>
+            A minor, but noteworthy feature of includes is that it correctly handles NaN, unlike indexOf:
+
+            const arr = [NaN];
+            alert( arr.indexOf(NaN) ); // -1 (wrong, should be 0)
+            alert( arr.includes(NaN) );// true (correct)
+            That’s because includes was added to JavaScript much later and uses the more up-to-date comparison algorithm internally.
+        </code>
+    </pre>
+    <hr>
+    <h2>find and findIndex/findLastIndex</h2>
+    <p>Imagine we have an array of objects. How do we find an object with a specific condition?<br>
+
+        Here the <b>arr.find(fn)</b> method comes in handy.</p>
+        <pre>
+            <code>
+                let result = arr.find(function(item, index, array) {
+                    // if true is returned, item is returned and iteration is stopped
+                    // for falsy scenario returns undefined
+                });
+            </code>
+        </pre>
+    <p>The <b>arr.findIndex</b> method has the same syntax but returns the index where the element was found instead of the element itself. The value of -1 is returned if nothing is found.<br>
+
+        The <b>arr.findLastIndex</b> method is like findIndex, but searches from right to left, similar to lastIndexOf.</p>
+    <b>----------------------------------</b>
+    <h3>filter</h3>
+    <p>The syntax is similar to <b>find, but filter</b> returns an array of all matching elements:</p>
+    <pre>
+        <code>
+            let results = arr.filter(function(item, index, array) {
+                // if true item is pushed to results and the iteration continues
+                // returns empty array if nothing found
+            });
+        </code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>Transform an array</h2>
+    <h3>map</h3>
+    <p>The <b>arr.map</b> method is one of the most useful and often used.<br>
+
+        It calls the function for each element of the array and returns the array of results.</p>
+    <pre>
+        <code>
+            let result = arr.map(function(item, index, array) {
+                // returns the new value instead of item
+            });
+        </code>
+    </pre>
+    <pre>
+        <code>
+            let lengths = ["Bilbo", "Gandalf", "Nazgul"].map(item => item.length);
+            alert(lengths); // 5,7,6
+        </code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>sort(fn)</h2>
+    <p>The call to arr.sort() sorts the array in place, changing its element order.<br>
+
+        It also returns the sorted array, but the returned value is usually ignored, as arr itself is modified.</p>
+    <pre>
+        <code>
+            let arr = [ 1, 2, 15 ];
+
+            // the method reorders the content of arr
+            arr.sort();
+
+            alert( arr );  // 1, 15, 2
+        </code>
+    </pre>
+    <p>Did you notice anything strange in the outcome?<br>
+
+        The order became 1, 15, 2. Incorrect. But why?<br>
+        
+        The items are sorted as strings by default</p>
+    <pre>
+        <code>
+            let arr = [ 1, 2, 15 ];
+
+            arr.sort(function(a, b) { return a - b; });
+
+            alert(arr);  // 1, 2, 15
+        </code>
+    </pre>
+    <b>Arrow functions for the best</b>
+    <p>Remember arrow functions? We can use them here for neater sorting:</p>
+    <pre>
+        <code>arr.sort( (a, b) => a - b );</code>
+    </pre>
+</div>
+<hr>
+<div>
+    <h2>reduce/reduceRight</h2>
+    <p>The methods <b>arr.reduce and arr.reduceRight</b> are used to calculate a single value based on the array.</p>
+    <pre>
+        <code>
+            let value = arr.reduce(function(accumulator, item, index, array) {
+                // ...
+            }, [initial]);
+        </code>
+    </pre>
+    <p>Arguments:<br>
+
+        <b>accumulator</b> – is the result of the previous function call, equals initial the first time (if initial is provided).<br>
+        <b>item –</b> is the current array item.<br>
+        <b>index</b> – is its position.<br>
+        <b>array –</b> is the array.</p>
+    <pre>
+        <code>
+            let arr = [1, 2, 3, 4, 5];
+
+            let result = arr.reduce((sum, current) => sum + current, 0);
+
+            alert(result); // 15
+        </code>
+    </pre>
+    <p>Let’s see the details of what’s going on.<br>
+
+        On the first run, sum is the initial value (the last argument of reduce), equals 0, and current is the first array element, equals 1. So the function result is 1.<br>
+        On the second run, sum = 1, we add the second array element (2) to it and return.<br>
+        On the 3rd run, sum = 3 and we add one more element to it, and so on…</p>
+</div>
+<hr>
+<div>
+    <h2>Most methods support “thisArg”</h2>
+    <p>Almost all array methods that call functions – like <b>find, filter, map,</b> with a notable exception of sort, accept an optional additional parameter <b>thisArg.</b></p>
+    <pre>
+        <code>
+            arr.find(func, thisArg);
+            arr.filter(func, thisArg);
+            arr.map(func, thisArg);
+            // ...
+            // thisArg is the optional last argument
+        </code>
+    </pre>
+    <p>The value of <b>thisArg</b> parameter becomes this for <b>func.</b></p>
+    <pre>
+        <code>
+            let army = {
+                minAge: 18,
+                maxAge: 27,
+                canJoin(user) {
+                  return user.age >= this.minAge && user.age < this.maxAge;
+                }
+            };
+              
+            let users = [
+                {age: 16},
+                {age: 20},
+                {age: 23},
+                {age: 30}
+            ];
+              
+            // find users, for who army.canJoin returns true
+            let soldiers = users.filter(army.canJoin, army);
+              
+            alert(soldiers.length); // 2
+            alert(soldiers[0].age); // 20
+            alert(soldiers[1].age); // 23
+        </code>
+    </pre>
+    <p>if in the example above we used <b>users.filter(army.canJoin)</b>, then <b>army.canJoin</b> would be called as a <b>standalone function</b>, with <b>this=undefined,</b> thus leading to an instant error.<br>
+
+        A call to users.filter(army.canJoin, army) can be replaced with users.filter(user => army.canJoin(user)), that does the same. The latter is used more often, as it’s a bit easier to understand for most people.</p>
+</div>
+<hr>
+<p>
+    The filter method creates a new array by iterating over the <b>users array</b> and applying the <b>army.canJoin</b> method to each element (i.e., each user).<br>
+
+Key point: filter passes the current item (in this case, a user) to the callback function (army.canJoin) and expects it to return true or false.<br>
+
+However, the army.canJoin method, when invoked directly, does not have access to the army object itself, so the method would fail to correctly check the age range without the army object context.<br>
+
+How does it work?<br>
+
+filter passes the army.canJoin method as the callback, but we need to ensure that the method has access to army's properties (minAge and maxAge), so we pass army as the second argument to the filter method.<br>
+The second argument (army) will be used as the value of this inside the army.canJoin method. This ensures that canJoin can access this.minAge and this.maxAge correctly.<br>
+</p>
+
