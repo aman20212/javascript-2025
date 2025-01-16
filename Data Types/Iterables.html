@@ -1,0 +1,206 @@
+<div>
+  <h2>Iterables</h2>
+  <p>
+    Iterable objects are a generalization of arrays. That’s a concept that
+    allows us to make any object useable in a <b>for..of </b>loop.
+  </p>
+</div>
+<hr />
+<div style="color: red">
+  <h2>Symbol.iterator</h2>
+  <p>
+    We can easily grasp the concept of iterables by making one of our own.<br />
+    For instance, we have an object that is not an array, but looks suitable for
+    for..of.<br />
+    Like a range object that represents an interval of numbers:
+    <pre>
+        <code>
+            let range = {
+                from: 1,
+                to: 5
+            };
+              
+            // We want the for..of to work:
+            // for(let num of range) ... num=1,2,3,4,5
+        </code>
+    </pre>
+    But, if we execute the code:
+    <pre>
+        <code>
+            for (let num of range) {
+                console.log(num);
+            }
+        </code>
+    </pre>
+    We will get error: <b>Uncaught TypeError: range is not iterable</b><br>
+    <p>To make the <b>range</b> object iterable (and thus let <b>for..of</b> work) we need to add a method to the object named<br><b> Symbol.iterator</b> (a special built-in symbol just for that).
+    <br>
+    <br>
+    1. When <b>for..of</b> starts, it calls that method once (or errors if not found). The method must return an iterator – an object with the method <b>next</b>.<br>
+    2. Onward, <b>for..of</b> works only with that returned object.<br>
+    3. When <b>for..of</b> wants the next value, it calls <b>next()</b> on that object.<br>
+    4. The result of <b>next()</b> must have the form <b>{done: Boolean, value: any}</b>, where <b>done=true</b> means that the loop is finished, otherwise <b>value</b> is the next value.</p>
+  </p>
+  <pre>
+    <code>
+        let range = {
+            from: 1,
+            to: 5
+          };
+          
+          // 1. call to for..of initially calls this
+          range[Symbol.iterator] = function() {
+          
+            // ...it returns the iterator object:
+            // 2. Onward, for..of works only with the iterator object below, asking it for next values
+            return {
+              current: this.from,
+              last: this.to,
+          
+              // 3. next() is called on each iteration by the for..of loop
+              next() {
+                // 4. it should return the value as an object {done:.., value :...}
+                if (this.current <= this.last) {
+                  return { done: false, value: this.current++ };
+                } else {
+                  return { done: true };
+                }
+              }
+            };
+          };
+          
+          // now it works!
+          for (let num of range) {
+            alert(num); // 1, then 2, 3, 4, 5
+          }
+    </code>
+  </pre>
+  <p style="color: brown;">
+    Please note the core feature of iterables: separation of concerns.<br>
+
+1. The range itself does not have the next() method.<br>
+2. Instead, another object, a so-called “iterator” is created by the call to range[Symbol.iterator](), and its next() generates values for the iteration.<br>
+3. So, the iterator object is separate from the object it iterates over.<br>
+<br><br>
+Technically, we may merge them and use range itself as the iterator to make the code simpler.
+  </p>
+  <pre>
+    <code>
+        let range = {
+            from: 1,
+            to: 5,
+          
+            [Symbol.iterator]() {
+              this.current = this.from;
+              return this;
+            },
+          
+            next() {
+              if (this.current <= this.to) {
+                return { done: false, value: this.current++ };
+              } else {
+                return { done: true };
+              }
+            }
+          };
+          
+          for (let num of range) {
+            alert(num); // 1, then 2, 3, 4, 5
+          }
+    </code>
+  </pre>
+  Now <b>range[Symbol.iterator]()</b> returns the <b>range</b> object itself: it has the necessary <b>next()</b> method and remembers the current iteration progress in <b>this.current</b>. Shorter? Yes. And sometimes that’s fine too.<br>
+
+The downside is that now it’s impossible to have two <b>for..of</b> loops running over the object simultaneously: they’ll share the iteration state, because there’s only one iterator – the object itself. But two parallel for-ofs is a rare thing, even in async scenarios.
+</div>
+<hr>
+<div style="color: blue;">
+    <h2>String is iterable</h2>
+    <p>Arrays and strings are most widely used built-in iterables.<br>
+        For a string, <b>for..of</b> loops over its characters:<br>
+        <pre>
+            <code>
+                for (let char of "test") {
+                    // triggers 4 times: once for each character
+                    alert( char ); // t, then e, then s, then t
+                }
+            </code>
+        </pre>
+        And it works correctly with surrogate pairs!
+        <pre>
+            <code>
+                let str = '𝒳😂';
+                for (let char of str) {
+                    alert( char ); // 𝒳, and then 😂
+                }
+            </code>
+        </pre>
+    </p>
+    <h3>Calling an iterator explicitly</h3>
+    <p>For deeper understanding, let’s see how to use an iterator explicitly.<br>
+
+        We’ll iterate over a string in exactly the same way as for..of, but with direct calls. This code creates a string iterator and gets values from it “manually”:</p>
+    <pre>
+        <code>
+            let str = "Hello";
+
+            // does the same as
+            // for (let char of str) alert(char);
+
+            let iterator = str[Symbol.iterator]();
+
+            while (true) {
+            let result = iterator.next();
+            if (result.done) break;
+            alert(result.value); // outputs characters one by one
+            }
+        </code>
+    </pre>
+    That is rarely needed, but gives us more control over the process than for..of. For instance, we can split the iteration process: iterate a bit, then stop, do something else, and then resume later.
+</div>
+<hr>
+<div style="color: cornflowerblue;">
+    <h2>Iterables and array-likes</h2>
+    <p>Two official terms look similar, but are very different. Please make sure you understand them well to avoid the confusion.<br><br>
+
+        <i>Iterables</i> are objects that implement the <b>Symbol.iterator</b> method, as described above.<br><br>
+        <i>Array-likes</i> are objects that have <b>indexes</b> and <b>length</b>, so they look like arrays.<br><br>
+        When we use JavaScript for practical tasks in a browser or any other environment, we may meet objects that are iterables or array-likes, or both.<br><br>
+        
+        For instance, strings are both iterable (<b>for..of</b> works on them) and array-like (they have numeric indexes and <b>length</b>).<br><br>
+        
+        But an iterable may not be array-like. And vice versa an array-like may not be iterable.<br><br>
+        
+        For example, the <b>range</b> in the example above is iterable, but not array-like, because it does not have indexed properties and <b>length</b>.<br><br>
+        
+        And here’s the object that is array-like, but not iterable:</p>
+        <pre>
+            <code>
+                let arrayLike = { // has indexes and length => array-like
+                    0: "Hello",
+                    1: "World",
+                    length: 2
+                  };
+                  
+                  // Error (no Symbol.iterator)
+                  for (let item of arrayLike) {}
+            </code>
+        </pre>
+</div>
+<hr>
+<div>
+    <h2>Array.from</h2>
+    <p>There’s a universal method <b>Array.from</b> that takes an iterable or array-like value and makes a “real” Array from it. Then we can call array methods on it.</p>
+    <pre>
+        <code>
+            let arrayLike = {
+                0: "Hello",
+                1: "World",
+                length: 2
+              };
+              
+              let arr = Array.from(arrayLike); // (*)
+              alert(arr.pop()); // World (method works)
+        </code>
+    </pre>
+</div>
