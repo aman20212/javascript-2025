@@ -1,0 +1,130 @@
+<div>
+  <h2>Object.keys, values, entries</h2>
+  <p>
+    For plain objects, the following methods are available:<br />
+    <b>Object.keys(obj) </b>– returns an array of keys.<br />
+    <b>Object.values(obj)</b> – returns an array of values.<br />
+    <b>Object.entries(obj)</b> – returns an array of [key, value] pairs.<br />
+  </p>
+  <pre>
+    <code>
+        let user = {
+            name: "John",
+            age: 30
+        };
+
+        Object.keys(user) = ["name", "age"]
+        Object.values(user) = ["John", 30]
+        Object.entries(user) = [ ["name","John"], ["age",30] ]
+    </code>
+  </pre>
+  Here’s an example of using <b>Object.values</b> to loop over property
+  values:<br />
+  <pre>
+    <code>
+        let user = {
+            name: "John",
+            age: 30
+        };
+          
+          // loop over values
+          for (let value of Object.values(user)) {
+            alert(value); // John, then 30
+          }
+    </code>
+  </pre>
+  <p style="color: red">
+    <b>Object.keys/values/entries ignore symbolic properties</b>
+    Just like a <b>for..in</b> loop, these methods ignore properties that use
+    <b>Symbol(...)</b> as keys. <br /><br />Usually that’s convenient. But if we
+    want symbolic keys too, then there’s a separate method<br /><br />
+    <b>Object.getOwnPropertySymbols</b> that returns an array of only symbolic
+    keys. Also, there exist a method <b>Reflect.ownKeys(obj)</b> that returns
+    all keys.
+  </p>
+</div>
+<hr />
+
+<div>
+  <h2>Transforming objects</h2>
+  <p>
+    Objects lack many methods that exist for arrays, e.g. <b>map, filter</b> and
+    others.<br /><br />
+
+    If we’d like to apply them, then we can use <b>Object.entries</b> followed
+    by <b>Object.fromEntries</b><br /><br />Use <b>Object.entries(obj)</b> to
+    get an array of key/value pairs from obj.<br /><br />
+    Use array methods on that array, e.g. map, to transform these key/value
+    pairs.<br /><br />
+    Use <b>Object.fromEntries(array)</b> on the resulting array to turn it back
+    into an object.
+  </p>
+  <pre>
+    <code>
+        let prices = {
+            banana: 1,
+            orange: 2,
+            meat: 4,
+          };
+          
+        let doublePrices = Object.fromEntries(
+            // convert prices to array, map each key/value pair into another pair
+            // and then fromEntries gives back the object
+            Object.entries(prices).map(entry => [entry[0], entry[1] * 2])
+        );
+          
+          alert(doublePrices.meat); // 8
+    </code>
+  </pre>
+</div>
+
+<hr />
+<hr />
+<pre>
+    <code>
+        There is a salaries object with arbitrary number of salaries.
+
+        Write the function sumSalaries(salaries) that returns the sum of all salaries using Object.values and the for..of loop.
+
+        If salaries is empty, then the result must be 0.
+
+        For instance:
+
+        let salaries = {
+        "John": 100,
+        "Pete": 300,
+        "Mary": 250
+        };
+
+        alert( sumSalaries(salaries) ); // 650
+
+
+        //Solution:
+        function sumSalaries(obj) {
+            let aman = Object.values(obj).reduce((a, b) => {
+            return a + b;
+        },0);
+        return aman;
+        }
+    </code>
+</pre>
+
+<hr />
+<hr />
+<pre>
+    <code>
+        Write a function count(obj) that returns the number of properties in the object:
+        let user = {
+            name: 'John',
+            age: 30
+          };
+          
+          alert( count(user) ); // 2
+
+
+        // Solution::
+        function count(obj) {
+            return Object.keys(obj).length;
+        }
+    </code>
+</pre>

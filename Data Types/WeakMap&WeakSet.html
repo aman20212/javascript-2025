@@ -1,0 +1,302 @@
+<div>
+  <h2>WeakMap and WeakSet</h2>
+  <pre>
+    <code>
+        let john = { name: "John" };
+
+        // the object can be accessed, john is the reference to it
+
+        // overwrite the reference
+        john = null;
+
+        // the object will be removed from memory
+    </code>
+  </pre>
+  <b
+    >Usually, properties of an object or elements of an array or another data
+    structure are considered reachable and kept in memory while that data
+    structure is in memory.</b
+  ><br />
+  <b
+    >For instance, if we put an object into an array, then while the array is
+    alive, the object will be alive as well, even if there are no other
+    references to it.</b
+  ><br />
+  <pre>
+    <code>
+        let john = { name: "John" };
+
+        let array = [ john ];
+
+        john = null; // overwrite the reference
+
+        // the object previously referenced by john is stored inside the array
+        // therefore it won't be garbage-collected
+        // we can get it as array[0]
+    </code>
+  </pre>
+  <b style="color: red"
+    >WeakMap is fundamentally different in this aspect. It doesn’t prevent
+    garbage-collection of key objects.</b
+  >
+</div>
+<hr />
+<div style="color: blue">
+  <h2>WeakMap</h2>
+  <b
+    >The first difference between Map and WeakMap is that keys must be objects,
+    not primitive values:</b
+  >
+  <pre>
+    <code>
+        let weakMap = new WeakMap();
+
+        let obj = {};
+
+        weakMap.set(obj, "ok"); // works fine (object key)
+
+        // can't use a string as the key
+        weakMap.set("test", "Whoops"); // 
+    </code>
+  </pre>
+  <p>
+    Now, if we use an object as the key in it, and there are no other references
+    to that object – it will be removed from memory (and from the map)
+    automatically.
+  </p>
+
+  <pre>
+    <code>
+        let john = { name: "John" };
+
+        let weakMap = new WeakMap();
+        weakMap.set(john, "...");
+
+        john = null; // overwrite the reference
+
+        // john is removed from memory!
+    </code>
+  </pre>
+  <p>
+    <b>WeakMap</b> does not support iteration and methods
+    <b>keys(), values(), entries(),</b> so there’s no way to get all keys or
+    values from it.<br />
+    <b>WeakMap</b> has only the following methods:
+  </p>
+  <li>
+    <ol>
+      weakMap.set(key, value)
+    </ol>
+    <ol>
+      weakMap.get(key)
+    </ol>
+    <ol>
+      weakMap.delete(key)
+    </ol>
+    <ol>
+      weakMap.has(key)
+    </ol>
+  </li>
+</div>
+<br />
+<div>
+  <h2>Use case: additional data</h2>
+  <p>The main area of application for WeakMap is an additional data storage.</p>
+  <p>
+    If we’re working with an object that “belongs” to another code, maybe even a
+    third-party library, and would like to store some data associated with it,
+    that should only exist while the object is alive – then WeakMap is exactly
+    what’s needed.
+    <br />
+    We put the data to a WeakMap, using the object as the key, and when the
+    object is garbage collected, that data will automatically disappear as well.
+  </p>
+</div>
+<hr />
+<div>
+  <h2>Use case: caching</h2>
+  <p>
+    Another common example is caching. We can store (“cache”) results from a
+    function, so that future calls on the same object can reuse it.
+  </p>
+  <pre>
+    <code>
+      cache.js
+
+      let cache = new WeakMap();
+
+      // calculate and remember the result
+      function process(obj) {
+        if (!cache.has(obj)) {
+          let result = /* calculate the result for */ obj;
+
+          cache.set(obj, result);
+          return result;
+        }
+
+        return cache.get(obj);
+      }
+
+      // 📁 main.js
+      let obj = {/* some object */};
+
+      let result1 = process(obj);
+      let result2 = process(obj);
+
+      // ...later, when the object is not needed any more:
+      obj = null;
+
+      // Can't get cache.size, as it's a WeakMap,
+      // but it's 0 or soon be 0
+      // When obj gets garbage collected, cached data will be removed as well
+    </code>
+  </pre>
+</div>
+<hr />
+<div>
+  <h2>WeakSet</h2>
+  <p>
+    WeakSet behaves similarly:<br />
+
+    It is analogous to Set, but we may only add objects to WeakSet (not
+    primitives).<br />
+    An object exists in the set while it is reachable from somewhere else.<br />
+    Like Set, it supports add, has and delete, but not size, keys() and no
+    iterations.<br />
+    Being “weak”, it also serves as additional storage. But not for arbitrary
+    data, rather for “yes/no” facts. A membership in WeakSet may mean something
+    about the object.<br />
+
+    For instance, we can add users to WeakSet to keep track of those who visited
+    our site:
+  </p>
+  <pre>
+      <code>
+        let visitedSet = new WeakSet();
+
+        let john = { name: "John" };
+        let pete = { name: "Pete" };
+        let mary = { name: "Mary" };
+
+        visitedSet.add(john); // John visited us
+        visitedSet.add(pete); // Then Pete
+        visitedSet.add(john); // John again
+
+        // visitedSet has 2 users now
+
+        // check if John visited?
+        alert(visitedSet.has(john)); // true
+
+        // check if Mary visited?
+        alert(visitedSet.has(mary)); // false
+
+        john = null;
+
+        // visitedSet will be cleaned automatically
+      </code>
+    </pre>
+</div>
+
+<hr />
+<hr />
+<div style="color: red">
+  <h2>Tasks</h2>
+  <h2>Store "unread" flags</h2>
+  <pre>
+    <code>
+      There’s an array of messages:
+      let messages = [
+        {text: "Hello", from: "John"},
+        {text: "How goes?", from: "John"},
+        {text: "See you soon", from: "Alice"}
+      ];
+
+      Your code can access it, but the messages are managed by someone else’s code. New messages are added, old ones are removed regularly by that code, and you don’t know the exact moments when it happens.
+
+      Now, which data structure could you use to store information about whether the message “has been read”? The structure must be well-suited to give the answer “was it read?” for the given message object.
+
+      P.S. When a message is removed from messages, it should disappear from your structure as well.
+
+      P.P.S. We shouldn’t modify message objects, add our properties to them. As they are managed by someone else’s code, that may lead to bad consequences.
+
+      ===== Solution========
+      Let’s store read messages in WeakSet:
+      let messages = [
+        {text: "Hello", from: "John"},
+        {text: "How goes?", from: "John"},
+        {text: "See you soon", from: "Alice"}
+      ];
+
+      let readMessages = new WeakSet();
+
+      // two messages have been read
+      readMessages.add(messages[0]);
+      readMessages.add(messages[1]);
+      // readMessages has 2 elements
+
+      // ...let's read the first message again!
+      readMessages.add(messages[0]);
+      // readMessages still has 2 unique elements
+
+      // answer: was the message[0] read?
+      alert("Read message 0: " + readMessages.has(messages[0])); // true
+
+      messages.shift();
+      // now readMessages has 1 element (technically memory may be cleaned later)
+
+
+      The WeakSet allows to store a set of messages and easily check for the existence of a message in it.
+
+      It cleans up itself automatically. The tradeoff is that we can’t iterate over it, can’t get “all read messages” from it directly.
+      But we can do it by iterating over all messages and filtering those that are in the set.
+
+      Another, different solution could be to add a property like message.isRead=true to a message after it’s read. 
+      As messages objects are managed by another code, that’s generally discouraged, but we can use a symbolic property to avoid conflicts.
+
+      Like this:
+      // the symbolic property is only known to our code
+      let isRead = Symbol("isRead");
+      messages[0][isRead] = true;
+
+      Now third-party code probably won’t see our extra property.
+
+      Although symbols allow to lower the probability of problems, using WeakSet is better from the architectural point of view.
+    </code>
+  </pre>
+</div>
+
+<hr />
+<hr />
+<div>
+  <h2>Store read dates</h2>
+  <p>
+    There’s an array of messages as in the previous task. The situation is
+    similar.
+  </p>
+  <pre>
+    <code>
+      let messages = [
+        {text: "Hello", from: "John"},
+        {text: "How goes?", from: "John"},
+        {text: "See you soon", from: "Alice"}
+      ];
+
+      The question now is: which data structure you’d suggest to store the information: “when the message was read?”.
+
+      In the previous task we only needed to store the “yes/no” fact. Now we need to store the date, and it should only remain in memory until the message is garbage collected.
+
+      P.S. Dates can be stored as objects of built-in Date class, that we’ll cover later.
+
+      let messages = [
+        {text: "Hello", from: "John"},
+        {text: "How goes?", from: "John"},
+        {text: "See you soon", from: "Alice"}
+      ];
+
+      let readMap = new WeakMap();
+
+      readMap.set(messages[0], new Date(2017, 1, 1));
+
+    </code>
+  </pre>
+</div>
