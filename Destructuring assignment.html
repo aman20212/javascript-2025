@@ -1,0 +1,198 @@
+<div>
+  <h2>Destructuring assignment</h2>
+  <p>
+    Destructuring assignment is a special syntax that allows us to “unpack”
+    arrays or objects into a bunch of variables, as sometimes that’s more
+    convenient.
+  </p>
+</div>
+<hr />
+<div>
+  <h2>Array destructuring</h2>
+  <pre>
+        <code>
+            // we have an array with a name and surname
+            let arr = ["John", "Smith"]
+
+            // destructuring assignment
+            // sets firstName = arr[0]
+            // and surname = arr[1]
+            let [firstName, surname] = arr;
+
+            alert(firstName); // John
+            alert(surname);  // Smith
+        </code>
+    </pre>
+  <hr />
+  <pre>
+        <code>
+            let [firstName, surname] = "John Smith".split(' ');
+            alert(firstName); // John
+            alert(surname);  // Smith
+        </code>
+    </pre>
+  <strong
+    >It’s called “destructuring assignment,” because it “destructurizes” by
+    copying items into variables. However, the array itself is not
+    modified.</strong
+  >
+  <pre>
+    <code>
+        Unwanted elements of the array can also be thrown away via an extra comma:
+
+        // second element is not needed
+        let [firstName, , title] = ["Julius", "Caesar", "Consul", "of the Roman Republic"];
+
+        alert( title ); // Consul
+    </code>
+  </pre>
+  <pre>
+    <code>
+        …Actually, we can use it with any iterable, not only arrays:
+
+        let [a, b, c] = "abc"; // ["a", "b", "c"]
+        let [one, two, three] = new Set([1, 2, 3]);
+
+        That works, because internally a destructuring assignment works by iterating
+        over the right value.
+        It’s a kind of syntax sugar for calling for..of over the value to the right
+        of = and assigning the values.
+    </code>
+  </pre>
+  <pre>
+    <code>
+        We can use any “assignables” on the left side.
+
+        let user = {};
+        [user.name, user.surname] = "John Smith".split(' ');
+
+        alert(user.name); // John
+        alert(user.surname); // Smith
+    </code>
+  </pre>
+</div>
+<hr />
+<div>
+  <h2>Object destructuring</h2>
+  <p>The destructuring assignment also works with objects.</p>
+  <pre>
+    <code>
+        The basic syntax is:
+
+
+        let {var1, var2} = {var1:…, var2:…}
+
+        let options = {
+            title: "Menu",
+            width: 100,
+            height: 200
+        };
+          
+        let {title, width, height} = options;
+          
+        alert(title);  // Menu
+        alert(width);  // 100
+        alert(height); // 200
+
+        The order does not matter. This works too:
+
+        let {height, width, title} = { title: "Menu", height: 200, width: 100 }
+-----------------------------------------------------------------------------------------------------
+
+        let options = {
+            title: "Menu",
+            width: 100,
+            height: 200
+        };
+          
+        // { sourceProperty: targetVariable }
+        let {width: w, height: h, title} = options;
+          
+        // width -> w
+        // height -> h
+        // title -> title
+          
+        alert(title);  // Menu
+        alert(w);      // 100
+        alert(h);      // 200
+
+        The colon shows “what : goes where”. 
+        In the example above the property width goes to w, property height goes to h, and title is assigned to the same name.
+
+        ---------------------------------------------------------------------------------------------------------------------
+        let options = {
+            title: "Menu",
+            height: 200,
+            width: 100
+        };
+          
+        // title = property named title
+        // rest = object with the rest of properties
+        let {title, ...rest} = options;
+          
+        // now title="Menu", rest={height: 200, width: 100}
+        alert(rest.height);  // 200
+        alert(rest.width);   // 100
+        ----------------------------------------------------------------------------------------------------------------------
+
+    </code>
+  </pre>
+  <pre>
+    <code style="color: red;">
+        Gotcha if there’s no let
+
+        This won’t work:
+        let title, width, height;
+
+        // error in this line
+        {title, width, height} = {title: "Menu", width: 200, height: 100};
+
+        The problem is that JavaScript treats {...} in the main code flow (not inside another expression) as a code block.
+        Such code blocks can be used to group statements
+
+        So here JavaScript assumes that we have a code block, that’s why there’s an error. We want destructuring instead.
+
+        To show JavaScript that it’s not a code block, we can wrap the expression in parentheses (...):
+        let title, width, height;
+
+        // okay now
+        ({title, width, height} = {title: "Menu", width: 200, height: 100});
+
+        alert( title ); // Menu
+
+    </code>
+  </pre>
+</div>
+<hr />
+
+<div>
+  <h2>Nested destructuring</h2>
+  <pre>
+    <code>
+        let options = {
+            size: {
+              width: 100,
+              height: 200
+            },
+            items: ["Cake", "Donut"],
+            extra: true
+        };
+          
+        // destructuring assignment split in multiple lines for clarity
+        let {
+            size: { // put size here
+              width,
+              height
+            },
+            items: [item1, item2], // assign items here
+            title = "Menu" // not present in the object (default value is used)
+        } = options;
+          
+        alert(title);  // Menu
+        alert(width);  // 100
+        alert(height); // 200
+        alert(item1);  // Cake
+        alert(item2);  // Donut
+    </code>
+  </pre>
+</div>

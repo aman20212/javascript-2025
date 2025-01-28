@@ -1,0 +1,122 @@
+<div>
+  <h2>JSON methods, toJSON</h2>
+  <p>
+    JavaScript provides methods:<br />
+
+    <b>JSON.stringify </b>to convert objects into JSON.<br />
+    <b>JSON.parse</b> to convert JSON back into an object.
+  </p>
+  <pre>
+    <code>
+        let student = {
+            name: 'John',
+            age: 30,
+            isAdmin: false,
+            courses: ['html', 'css', 'js'],
+            spouse: null
+        };
+          
+        let json = JSON.stringify(student);
+          
+        alert(typeof json); // we've got a string!
+          
+        alert(json);
+        /* JSON-encoded object:
+        {
+            "name": "John",
+            "age": 30,
+            "isAdmin": false,
+            "courses": ["html", "css", "js"],
+            "spouse": null
+        }
+        */
+        ------------------------------------------------------------------------------------
+        The method JSON.stringify(student) takes the object and converts it into a string.
+
+        The resulting json string is called a JSON-encoded or serialized or stringified or marshalled object. We are ready to send it over the wire or put into a plain data store.
+
+        Please note that a JSON-encoded object has several important differences from the object literal:
+
+        Strings use double quotes. No single quotes or backticks in JSON. So 'John' becomes "John".
+        Object property names are double-quoted also. That’s obligatory. So age:30 becomes "age":30.
+        JSON.stringify can be applied to primitives as well.
+
+        JSON supports following data types:
+
+        Objects { ... }
+        Arrays [ ... ]
+        Primitives:
+        strings,
+        numbers,
+        boolean values true/false,
+        null.
+        For instance:
+
+        // a number in JSON is just a number
+        alert( JSON.stringify(1) ) // 1
+
+        // a string in JSON is still a string, but double-quoted
+        alert( JSON.stringify('test') ) // "test"
+
+        alert( JSON.stringify(true) ); // true
+
+        alert( JSON.stringify([1, 2, 3]) ); // [1,2,3]
+        ------------------------------------------------------------------------------------
+        JSON is data-only language-independent specification, so some JavaScript-specific object properties are skipped by JSON.stringify.
+
+        Namely:
+
+        Function properties (methods).
+        Symbolic keys and values.
+        Properties that store undefined.
+
+        let user = {
+            sayHi() { // ignored
+              alert("Hello");
+            },
+            [Symbol("id")]: 123, // ignored
+            something: undefined // ignored
+        };
+          
+        alert( JSON.stringify(user) ); // {} (empty object)
+    </code>
+  </pre>
+</div>
+<hr />
+<div>
+  <h2>JSON.parse</h2>
+  <p>
+    To decode a JSON-string, we need another method named <b>JSON.parse.</b>
+  </p>
+  <br />
+  <pre>
+        <code>
+            let value = JSON.parse(str[, reviver]);
+
+            str
+            JSON-string to parse.
+
+            reviver
+            Optional function(key,value) that will be called for each (key, value) pair and can transform the value.
+            ------------------------------------------------------------------------------------
+
+            let numbers = "[0, 1, 2, 3]";
+
+            numbers = JSON.parse(numbers);
+
+            alert( numbers[1] ); // 1
+            ------------------------------------------------------------------------------------
+            The JSON may be as complex as necessary, objects and arrays can include other objects and arrays. But they must obey the same JSON format.
+
+            Here are typical mistakes in hand-written JSON (sometimes we have to write it for debugging purposes):
+
+            let json = `{
+                name: "John",                     // mistake: property name without quotes
+                "surname": 'Smith',               // mistake: single quotes in value (must be double)
+                'isAdmin': false                  // mistake: single quotes in key (must be double)
+                "birthday": new Date(2000, 2, 3), // mistake: no "new" is allowed, only bare values
+                "friends": [0,1,2,3]              // here all fine
+            }`;
+        </code>
+    </pre>
+</div>
